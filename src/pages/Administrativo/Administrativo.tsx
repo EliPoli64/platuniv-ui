@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import mockData from '../../data/mockData';
 import { Users, BookOpen, Search, Edit, Trash2, Calendar } from 'lucide-react';
+import Button from '../../components/ui/Button';
 import type { User, Course, Period } from '../../types';
 
 interface TabDef {
@@ -70,12 +71,12 @@ export default function Administrativo() {
               placeholder={`Buscar ${title.toLowerCase()}...`}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+              className="w-full pl-9 pr-3 py-2 border border-border rounded text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
           </div>
         </div>
         {data.length > 0 ? (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded border border-border">
             <table aria-label={title}>
               <thead>
                 <tr>
@@ -93,12 +94,12 @@ export default function Administrativo() {
                     ))}
                     <td>
                       <div className="flex gap-1.5">
-                        <button className="btn-outline" onClick={() => showToast('Editar: Funcionalidad simulada')}>
-                          <Edit size={13} aria-hidden="true" /> Editar
-                        </button>
-                        <button className="btn-danger" onClick={() => showToast('Eliminar: Funcionalidad simulada')}>
-                          <Trash2 size={13} aria-hidden="true" /> Eliminar
-                        </button>
+                        <Button variant="outline" size="sm" icon={Edit} onClick={() => showToast('Editar: Funcionalidad simulada')}>
+                          Editar
+                        </Button>
+                        <Button variant="danger" size="sm" icon={Trash2} onClick={() => showToast('Eliminar: Funcionalidad simulada')}>
+                          Eliminar
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -164,7 +165,7 @@ export default function Administrativo() {
   return (
     <div>
       {toast && (
-        <div className="fixed top-6 right-6 z-[2000] px-5 py-3 rounded-lg text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn bg-primary text-white" role="alert">
+        <div className="fixed top-6 right-6 z-[2000] px-5 py-3 rounded text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn bg-primary text-white" role="alert">
           <span>{toast}</span>
         </div>
       )}

@@ -124,7 +124,7 @@ export default function Horarios() {
                           {event && (
                             <button
                               onClick={() => setSelectedCourse(event.course)}
-                              className={`w-full text-left p-1.5 rounded-md text-[0.7rem] font-medium ${event.color} ${selectedCourse?.id === event.course.id ? 'ring-2 ring-white/60' : ''}`}
+                              className={`w-full text-left p-1.5 rounded text-[0.7rem] font-medium ${event.color} ${selectedCourse?.id === event.course.id ? 'ring-2 ring-white/60' : ''}`}
                             >
                               <div className="font-semibold truncate">{event.course.name}</div>
                               <div className="text-[0.6rem] opacity-80 truncate">{event.course.code} &middot; {event.course.classroom}</div>

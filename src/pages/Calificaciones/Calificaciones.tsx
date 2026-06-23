@@ -63,7 +63,7 @@ export default function Calificaciones() {
         </h3>
         {gradeRows.length > 0 ? (
           <>
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded border border-border">
               <table aria-label={`Calificaciones del período ${period.name}`}>
                 <thead>
                   <tr>
@@ -115,7 +115,7 @@ export default function Calificaciones() {
             </div>
           </>
         ) : (
-          <div className="p-4 text-text-secondary text-sm bg-bg rounded-lg">
+          <div className="p-4 text-text-secondary text-sm bg-bg rounded">
             Sin calificaciones para este período.
           </div>
         )}

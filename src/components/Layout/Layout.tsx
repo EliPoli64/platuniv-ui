@@ -6,6 +6,7 @@ import {
   ClipboardList, DollarSign, Settings, BarChart3,
   LogOut, Menu, X, UserCheck, BookMarked
 } from 'lucide-react';
+import Button from '../ui/Button';
 import type { UserRole, NavItem } from '../../types';
 
 const roleNavItems: Record<UserRole, NavItem[]> = {
@@ -71,7 +72,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         onClick={closeSidebar}
         aria-label="Cerrar menú"
       />
-      <aside className={`fixed top-0 left-0 z-50 h-screen w-[260px] bg-primary flex flex-col overflow-y-auto transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 z-50 h-screen w-[240px] bg-primary flex flex-col overflow-y-auto transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-6 pt-8 pb-6">
           <div className="font-display text-[1.6rem] leading-none text-white font-semibold tracking-tight">
             LA MEJOR
@@ -90,7 +91,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 to={item.path}
                 end={item.path === '/dashboard'}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm no-underline transition-all duration-150 ${
+                   `flex items-center gap-3 px-3 py-2.5 rounded text-sm no-underline transition-all duration-150 ${
                     isActive
                       ? 'bg-secondary/30 text-white font-medium shadow-sm border-l-2 border-l-secondary ml-0'
                       : 'text-white/70 hover:text-white hover:bg-white/10 border-l-2 border-l-transparent ml-0'
@@ -106,21 +107,22 @@ export default function Layout({ children }: { children: ReactNode }) {
         </nav>
         <div className="mx-5 h-px bg-white/10" />
         <div className="px-4 py-4">
-          <button
+          <Button
+            variant="ghost"
+            icon={LogOut}
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all no-underline cursor-pointer"
+            className="w-full justify-start text-white/60 hover:text-white"
           >
-            <LogOut size={16} aria-hidden="true" />
-            <span>Cerrar Sesión</span>
-          </button>
+            Cerrar Sesión
+          </Button>
         </div>
       </aside>
 
-      <main className="flex flex-col min-w-0 min-h-screen md:ml-[260px]">
+      <main className="flex flex-col min-w-0 min-h-screen md:ml-[240px]">
         <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-border sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button
-              className="p-1.5 bg-transparent border-none rounded-lg cursor-pointer text-primary hover:bg-bg md:hidden"
+              className="p-1.5 bg-transparent border-none rounded cursor-pointer text-primary hover:bg-bg md:hidden"
               onClick={() => setSidebarOpen(prev => !prev)}
               aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
             >

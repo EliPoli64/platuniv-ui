@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import mockData, { getEnrolledCourseIds } from '../../data/mockData';
-import { BookOpen, CheckCircle, AlertCircle, Search, User, Clock, Loader } from 'lucide-react';
+import { BookOpen, CheckCircle, AlertCircle, Search, User, Clock } from 'lucide-react';
+import Button from '../../components/ui/Button';
 import type { Toast } from '../../types';
 
 export default function Matricula() {
@@ -49,7 +50,7 @@ export default function Matricula() {
   return (
     <div>
       {toast && (
-        <div className={`fixed top-6 right-6 z-[2000] px-5 py-3 rounded-lg text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn ${toast.type === 'success' ? 'bg-success text-white' : toast.type === 'info' ? 'bg-primary text-white' : 'bg-danger text-white'}`} role="alert">
+        <div className={`fixed top-6 right-6 z-[2000] px-5 py-3 rounded text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn ${toast.type === 'success' ? 'bg-success text-white' : toast.type === 'info' ? 'bg-primary text-white' : 'bg-danger text-white'}`} role="alert">
           {toast.type === 'success' ? <CheckCircle size={18} aria-hidden="true" /> : <AlertCircle size={18} aria-hidden="true" />}
           {toast.msg}
         </div>
@@ -65,7 +66,7 @@ export default function Matricula() {
               placeholder="Buscar cursos..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+              className="w-full pl-9 pr-3 py-2 border border-border rounded text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
           </div>
         </div>
@@ -74,7 +75,7 @@ export default function Matricula() {
             <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Matrícula Actual ({localEnrolledIds.length} cursos)</h3>
             <div className="flex flex-wrap gap-2">
               {enrolledCourses.map(c => (
-                <span key={c.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary-light text-primary text-xs font-medium">
+                <span key={c.id} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary-light text-primary text-xs font-medium">
                   <BookOpen size={11} aria-hidden="true" />
                   {c.code}
                 </span>
@@ -97,7 +98,7 @@ export default function Matricula() {
               const fillPercent = isEnrolled ? 100 : (course.enrolled / course.capacity) * 100;
               const fillColor = fillPercent > 80 ? 'bg-danger' : fillPercent > 50 ? 'bg-warning' : 'bg-primary';
               return (
-                <div key={course.id} className={`rounded-lg border p-5 transition-all hover:shadow-sm ${
+                <div key={course.id} className={`rounded border p-5 transition-all hover:shadow-sm ${
                   isEnrolled ? 'border-l-4 border-l-success bg-white border-border' :
                   fillPercent > 80 ? 'border-l-4 border-l-warning bg-white border-border' :
                   'border-l-4 border-l-primary bg-white border-border'
@@ -122,15 +123,13 @@ export default function Matricula() {
                   </div>
                   <div className="mt-3 flex gap-2">
                     {!isEnrolled ? (
-                      <button className="btn-primary" disabled={course.enrolled >= course.capacity || enrolling === course.id} onClick={() => handleEnroll(course.id)}>
-                        {enrolling === course.id ? (
-                          <><Loader size={14} className="animate-spin" /> Matriculando...</>
-                        ) : 'Matricular'}
-                      </button>
+                      <Button variant="primary" disabled={course.enrolled >= course.capacity || enrolling === course.id} loading={enrolling === course.id} onClick={() => handleEnroll(course.id)}>
+                        {enrolling === course.id ? 'Matriculando...' : 'Matricular'}
+                      </Button>
                     ) : (
-                      <button className="btn-danger" onClick={() => handleDrop(course.id)}>
+                      <Button variant="danger" onClick={() => handleDrop(course.id)}>
                         Cancelar Matrícula
-                      </button>
+                      </Button>
                     )}
                   </div>
                   <div className="text-xs text-text-secondary mt-2 leading-relaxed">

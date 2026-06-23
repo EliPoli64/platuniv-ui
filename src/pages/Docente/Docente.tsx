@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import mockData, { getTeacherCourses, getCourseStudents } from '../../data/mockData';
 import { BookOpen, Users, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import Button from '../../components/ui/Button';
 import type { User, GradeFormEntry, GradesState, AttendanceState, AttendanceStatus, Toast } from '../../types';
 
 const GRADE_FIELDS: Array<keyof GradeFormEntry> = ['parcial1', 'parcial2', 'proyecto', 'final'];
@@ -135,7 +136,7 @@ export default function Docente() {
     <div>
       {toast && (
         <div
-          className={`fixed top-6 right-6 z-[2000] px-5 py-3 rounded-lg text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn ${toast.type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`}
+          className={`fixed top-6 right-6 z-[2000] px-5 py-3 rounded text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn ${toast.type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`}
           role="alert"
         >
           {toast.type === 'success' ? <CheckCircle size={18} aria-hidden="true" /> : <AlertCircle size={18} aria-hidden="true" />}
@@ -220,7 +221,7 @@ export default function Docente() {
               <div className="card-body">
                 <h3 className="text-sm font-semibold mb-3 text-primary">Estudiantes Matriculados</h3>
                 {students.length > 0 ? (
-                  <div className="overflow-x-auto rounded-lg border border-border">
+                  <div className="overflow-x-auto rounded border border-border">
                     <table aria-label="Lista de estudiantes matriculados">
                       <thead>
                         <tr>
@@ -259,13 +260,13 @@ export default function Docente() {
               <h3 className="text-sm font-semibold text-primary">Registro de Asistencia - {course?.name}</h3>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-text-secondary">Fecha: {new Date().toLocaleDateString()}</span>
-                <button className="btn-primary" onClick={saveAttendance} disabled={savingAttendance}>
+                <Button onClick={saveAttendance} loading={savingAttendance}>
                   {savingAttendance ? 'Guardando...' : 'Guardar Asistencia'}
-                </button>
+                </Button>
               </div>
             </div>
             {students.length > 0 ? (
-              <div className="overflow-x-auto rounded-lg border border-border">
+              <div className="overflow-x-auto rounded border border-border">
                 <table aria-label="Registro de asistencia">
                   <thead>
                     <tr>
@@ -313,12 +314,12 @@ export default function Docente() {
           <div className="card-body">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <h3 className="text-sm font-semibold text-primary">Registro de Calificaciones - {course?.name}</h3>
-              <button className="btn-primary" onClick={saveGrades} disabled={savingGrades}>
+              <Button onClick={saveGrades} loading={savingGrades}>
                 {savingGrades ? 'Guardando...' : 'Guardar Calificaciones'}
-              </button>
+              </Button>
             </div>
             {students.length > 0 ? (
-              <div className="overflow-x-auto rounded-lg border border-border">
+              <div className="overflow-x-auto rounded border border-border">
                 <table aria-label="Registro de calificaciones">
                   <thead>
                     <tr>
@@ -348,7 +349,7 @@ export default function Docente() {
                                 step="0.5"
                                 value={g[field] === '' ? '' : g[field]}
                                 onChange={e => handleGradeChange(s.id, field, e.target.value)}
-                                className="w-14 px-1.5 py-1 border border-border rounded-lg text-xs text-center focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                className="w-14 px-1.5 py-1 border border-border rounded text-xs text-center focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                                 aria-label={`${s.name} - ${field}`}
                               />
                             </td>

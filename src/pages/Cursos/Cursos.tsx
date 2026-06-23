@@ -51,10 +51,10 @@ export default function Cursos() {
                   {course?.description}
                 </div>
                 <div className="mt-3 pt-3 border-t border-border flex gap-2">
-                  <Link to="/horarios" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary-light text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors">
+                  <Link to="/horarios" className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-primary-light text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors">
                     <Calendar size={12} aria-hidden="true" /> Horario
                   </Link>
-                  <Link to="/calificaciones" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary-light text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors">
+                  <Link to="/calificaciones" className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-primary-light text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors">
                     <BookOpen size={12} aria-hidden="true" /> Notas
                   </Link>
                 </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getStudentPayments } from '../../data/mockData';
 import { DollarSign, CheckCircle, AlertCircle, Download } from 'lucide-react';
+import Button from '../../components/ui/Button';
 import type { Toast, Payment } from '../../types';
 
 export default function Financiero() {
@@ -33,7 +34,7 @@ export default function Financiero() {
   return (
     <div>
       {toast && (
-        <div className={`fixed top-6 right-6 z-[2000] px-5 py-3 rounded-lg text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn ${toast.type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`} role="alert">
+        <div className={`fixed top-6 right-6 z-[2000] px-5 py-3 rounded text-sm flex items-center gap-2 shadow-card-lg max-w-[400px] animate-slideIn ${toast.type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`} role="alert">
           {toast.type === 'success' ? <CheckCircle size={18} aria-hidden="true" /> : <AlertCircle size={18} aria-hidden="true" />}
           {toast.msg}
         </div>
@@ -68,7 +69,7 @@ export default function Financiero() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Pagos Pendientes</h3>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded border border-border">
             <table aria-label="Pagos pendientes">
               <thead>
                 <tr>
@@ -87,9 +88,9 @@ export default function Financiero() {
                     <td className="text-text-secondary">Próximamente</td>
                     <td><span className="tag-warning">Pendiente</span></td>
                     <td>
-                      <button className="btn-success" onClick={() => handlePay(p.id)} disabled={paying}>
+                      <Button variant="success" onClick={() => handlePay(p.id)} disabled={paying}>
                         {paying ? 'Procesando...' : 'Pagar'}
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -105,7 +106,7 @@ export default function Financiero() {
         </div>
         {paidPayments.length > 0 ? (
           <>
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded border border-border">
               <table aria-label="Historial de pagos">
                 <thead>
                   <tr>
@@ -126,9 +127,9 @@ export default function Financiero() {
                       <td className="text-text-secondary">{p.date}</td>
                       <td><span className="tag-success">Pagado</span></td>
                       <td>
-                        <button className="btn-outline" onClick={() => setShowReceipt(showReceipt === p.id ? null : p.id)}>
-                          <Download size={14} aria-hidden="true" /> Recibo
-                        </button>
+                        <Button variant="outline" icon={Download} onClick={() => setShowReceipt(showReceipt === p.id ? null : p.id)}>
+                          Recibo
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -139,7 +140,7 @@ export default function Financiero() {
             {showReceipt && paidPayments.find(p => p.id === showReceipt) && (() => {
               const p = paidPayments.find(p => p.id === showReceipt) as Payment;
               return (
-                <div className="bg-white border-2 border-dashed border-border rounded-xl p-6 mt-4" id={`receipt-${p.id}`}>
+                <div className="bg-white border-2 border-dashed border-border rounded p-6 mt-4" id={`receipt-${p.id}`}>
                   <div className="text-center mb-4">
                     <h4 className="font-display text-lg text-primary">LA MEJOR</h4>
                     <p className="text-xs text-text-secondary mt-1">Recibo de Pago</p>

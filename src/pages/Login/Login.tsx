@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { LogIn, Eye, EyeOff, AlertCircle, GraduationCap, Users, Building2, Briefcase } from 'lucide-react';
+import Button from '../../components/ui/Button';
 import type { UserRole } from '../../types';
 
 const roleMeta: Record<UserRole, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
@@ -94,14 +95,14 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-card-lg p-8">
+          <div className="bg-white rounded shadow-hard p-8">
             <div className="text-center mb-6">
               <h1 className="text-base font-semibold text-primary">Iniciar Sesión</h1>
               <p className="text-xs text-text-secondary mt-1">Ingrese sus credenciales para acceder</p>
             </div>
 
             {error && (
-              <div className="bg-danger-light text-danger px-4 py-2.5 rounded-lg text-sm mb-4 flex items-center gap-2" role="alert">
+              <div className="bg-danger-light text-danger px-4 py-2.5 rounded text-sm mb-4 flex items-center gap-2" role="alert">
                 <AlertCircle size={16} aria-hidden="true" className="shrink-0" />
                 <span>{error}</span>
               </div>
@@ -120,7 +121,7 @@ export default function Login() {
                       key={role}
                       type="button"
                       aria-pressed={isSelected}
-                      className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-xl text-xs font-medium transition-all relative ${
+                       className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded text-xs font-medium transition-all relative ${
                         isSelected
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-bg text-text-secondary hover:bg-primary-light hover:text-primary'
@@ -158,7 +159,7 @@ export default function Login() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     autoComplete="current-password"
-                    className="w-full px-3 py-2 pr-10 border border-border rounded-lg text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-colors"
+                    className="w-full px-3 py-2 pr-10 border border-border rounded text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-colors"
                   />
                   <button
                     type="button"
@@ -179,13 +180,9 @@ export default function Login() {
                 <button type="button" className="text-xs text-text-secondary hover:text-primary transition-colors bg-transparent border-none cursor-pointer" tabIndex={-1}>¿Olvidaste tu contraseña?</button>
               </div>
 
-              <button type="submit" className="btn-primary w-full py-2.5 text-sm" disabled={loading}>
-                {loading ? (
-                  <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Iniciando sesión...</>
-                ) : (
-                  <><LogIn size={16} aria-hidden="true" /> Iniciar Sesión</>
-                )}
-              </button>
+              <Button type="submit" className="w-full" icon={LogIn} loading={loading}>
+                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              </Button>
             </form>
           </div>
         </div>
