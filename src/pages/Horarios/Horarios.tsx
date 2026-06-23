@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import mockData, { getStudentEnrollments } from '../../data/mockData';
 import type { Course, DayOfWeek, ScheduleEvent } from '../../types';
+import { X, MapPin, User, Clock } from 'lucide-react';
 
 const COLORS = ['bg-primary text-white', 'bg-success text-white', 'bg-warning text-white', 'bg-info text-white', 'bg-secondary text-white', 'bg-info text-white'] as const;
 const DAYS: DayOfWeek[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
@@ -37,6 +39,14 @@ export default function Horarios() {
   if (!user) return null;
   const currentPeriod = mockData.periods.find(p => p.active);
   const enrollments = getStudentEnrollments(user.id, currentPeriod?.id ?? 0);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
+  const now = new Date();
+  const currentHour = now.getHours() + now.getMinutes() / 60;
+  const currentHourIdx = Math.max(0, Math.min(HOURS.length - 1, Math.floor(currentHour - 7)));
+
+  const todayIdx = now.getDay();
+  const todayName = (['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'])[todayIdx] as DayOfWeek | undefined;
 
   const scheduleCells: Record<string, Record<number, ScheduleEvent>> = {};
   DAYS.forEach(d => { scheduleCells[d] = {}; });
@@ -56,11 +66,34 @@ export default function Horarios() {
     });
   });
 
+  const selectedTeacher = selectedCourse
+    ? mockData.users.find(u => u.id === selectedCourse.teacherId)
+    : null;
+
   return (
     <div>
       <div className="card-body mb-4">
         <h2 className="text-lg font-semibold text-primary">Horario Semanal - {currentPeriod?.name}</h2>
       </div>
+
+      {selectedCourse && (
+        <div className="card-body mb-4 border-l-4 border-l-primary">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-sm font-semibold text-primary">{selectedCourse.name}</div>
+              <div className="font-mono text-[11px] text-text-secondary mt-0.5">{selectedCourse.code}</div>
+              <div className="text-xs text-text-secondary mt-2 space-y-0.5">
+                <div className="flex items-center gap-1"><Clock size={12} aria-hidden="true" /> {selectedCourse.schedule}</div>
+                <div className="flex items-center gap-1"><MapPin size={12} aria-hidden="true" /> {selectedCourse.classroom}</div>
+                <div className="flex items-center gap-1"><User size={12} aria-hidden="true" /> {selectedTeacher?.name}</div>
+              </div>
+            </div>
+            <button onClick={() => setSelectedCourse(null)} className="p-1 rounded hover:bg-bg text-text-secondary transition-colors" aria-label="Cerrar detalle">
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="card p-3">
         {enrollments.length > 0 ? (
@@ -70,23 +103,32 @@ export default function Horarios() {
                 <tr>
                   <th scope="col" className="bg-bg p-2.5 text-center font-semibold text-xs text-primary border border-border rounded-tl-lg">Hora</th>
                   {DAYS.map(d => (
-                    <th key={d} scope="col" className="bg-bg p-2.5 text-center font-semibold text-xs text-primary border border-border">{d}</th>
+                    <th key={d} scope="col" className={`bg-bg p-2.5 text-center font-semibold text-xs border border-border ${d === todayName ? 'text-primary' : 'text-primary'}`}>{d}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {HOURS.map((hour, hourIdx) => (
-                  <tr key={hour}>
-                    <th scope="row" className="p-2 text-xs text-text-secondary text-center border border-border font-normal bg-white/50">{hour}</th>
+                  <tr key={hour} className={hourIdx === currentHourIdx && todayName && DAYS.includes(todayName) ? 'bg-primary-light/30' : ''}>
+                    <th scope="row" className={`p-2 text-xs text-center border border-border font-mono font-normal ${hourIdx === currentHourIdx && todayName && DAYS.includes(todayName) ? 'text-primary font-bold' : 'text-text-secondary bg-white/50'}`}>
+                      {hour}
+                      {hourIdx === currentHourIdx && todayName && DAYS.includes(todayName) && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-danger mx-auto mt-0.5" />
+                      )}
+                    </th>
                     {DAYS.map(day => {
                       const event = scheduleCells[day]?.[hourIdx];
+                      const isNow = day === todayName && hourIdx === currentHourIdx;
                       return (
-                        <td key={`${day}-${hourIdx}`} className="min-h-[56px] p-1 border border-border align-top bg-white">
+                        <td key={`${day}-${hourIdx}`} className={`min-h-[56px] p-1 border border-border align-top bg-white ${isNow ? 'ring-2 ring-danger/20 ring-inset' : ''}`}>
                           {event && (
-                            <div className={`p-1.5 rounded-md text-[0.7rem] font-medium ${event.color}`}>
+                            <button
+                              onClick={() => setSelectedCourse(event.course)}
+                              className={`w-full text-left p-1.5 rounded-md text-[0.7rem] font-medium ${event.color} ${selectedCourse?.id === event.course.id ? 'ring-2 ring-white/60' : ''}`}
+                            >
                               <div className="font-semibold truncate">{event.course.name}</div>
-                              <div className="text-[0.6rem] opacity-80 truncate">{event.course.code} · {event.course.classroom}</div>
-                            </div>
+                              <div className="text-[0.6rem] opacity-80 truncate">{event.course.code} &middot; {event.course.classroom}</div>
+                            </button>
                           )}
                         </td>
                       );

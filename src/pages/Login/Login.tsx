@@ -120,7 +120,7 @@ export default function Login() {
                       key={role}
                       type="button"
                       aria-pressed={isSelected}
-                      className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-xl text-xs font-medium transition-all ${
+                      className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-xl text-xs font-medium transition-all relative ${
                         isSelected
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-bg text-text-secondary hover:bg-primary-light hover:text-primary'
@@ -171,11 +171,12 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="mb-5">
+              <div className="mb-2 flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" />
                   <span className="text-text-secondary">Recordar usuario</span>
                 </label>
+                <button type="button" className="text-xs text-text-secondary hover:text-primary transition-colors bg-transparent border-none cursor-pointer" tabIndex={-1}>¿Olvidaste tu contraseña?</button>
               </div>
 
               <button type="submit" className="btn-primary w-full py-2.5 text-sm" disabled={loading}>

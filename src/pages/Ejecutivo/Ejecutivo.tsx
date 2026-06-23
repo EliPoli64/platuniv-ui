@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import mockData from '../../data/mockData';
-import { TrendingUp, Award, DollarSign, Users } from 'lucide-react';
+import { Award, DollarSign, Users } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, LineChart, Line, ResponsiveContainer } from 'recharts';
 import type { User } from '../../types';
 
@@ -111,48 +111,17 @@ export default function Ejecutivo() {
         </div>
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6" role="list" aria-label="Indicadores ejecutivos">
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><Users size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{filteredStudents.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Estudiantes Activos</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><DollarSign size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">${totalPaid.toFixed(2)}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Ingresos ({selectedPeriod?.name})</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><Award size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{passRate}%</div>
-            <div className="text-xs text-text-secondary mt-0.5">Tasa de Aprobación</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-warning text-white"><TrendingUp size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{avgGeneral}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Promedio General</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-danger text-white"><DollarSign size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{morosidad}%</div>
-            <div className="text-xs text-text-secondary mt-0.5">Morosidad</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 text-white" style={{ backgroundColor: '#e91e63' }}><TrendingUp size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{dropout}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Reprobados</div>
-          </div>
+      <div className="card-body mb-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+          <span className="font-semibold text-primary text-sm">Resumen {selectedPeriod?.name}</span>
+          <span className="text-text-secondary">&middot;</span>
+          <span className="inline-flex items-center gap-1"><Users size={13} aria-hidden="true" /><span className="font-mono font-semibold">{filteredStudents.length}</span> estudiantes</span>
+          <span className="inline-flex items-center gap-1"><DollarSign size={13} aria-hidden="true" /><span className="font-mono font-semibold">${totalPaid.toFixed(2)}</span> ingresos</span>
+          <span className="text-text-secondary">&middot;</span>
+          <span className="inline-flex items-center gap-1"><Award size={13} aria-hidden="true" /> Aprobación <span className="font-mono font-semibold">{passRate}%</span></span>
+          <span>Promedio <span className="font-mono font-semibold">{avgGeneral}</span></span>
+          <span>Morosidad <span className="font-mono font-semibold">{morosidad}%</span></span>
+          <span className="text-danger">Reprobados <span className="font-mono font-semibold">{dropout}</span></span>
         </div>
       </div>
 

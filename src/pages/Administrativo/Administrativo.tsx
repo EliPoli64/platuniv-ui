@@ -169,10 +169,24 @@ export default function Administrativo() {
         </div>
       )}
 
+      <div className="card-body mb-6">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="font-semibold text-primary">Catálogo:</span>
+          <span className="bg-primary-light text-primary rounded-full px-2.5 py-0.5 font-medium inline-flex items-center gap-1"><Users size={12} aria-hidden="true" /> {students.length} Estudiantes</span>
+          <span className="bg-primary-light text-primary rounded-full px-2.5 py-0.5 font-medium inline-flex items-center gap-1"><Users size={12} aria-hidden="true" /> {teachers.length} Docentes</span>
+          <span className="bg-primary-light text-primary rounded-full px-2.5 py-0.5 font-medium inline-flex items-center gap-1"><BookOpen size={12} aria-hidden="true" /> {courses.length} Cursos</span>
+          <span className="bg-primary-light text-primary rounded-full px-2.5 py-0.5 font-medium inline-flex items-center gap-1"><Calendar size={12} aria-hidden="true" /> {periods.length} Períodos</span>
+        </div>
+      </div>
+
       <div className="flex border-b border-border mb-6 gap-1" role="tablist" aria-label="Secciones administrativas">
         {TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
+          const count = tab.id === 'students' ? students.length
+            : tab.id === 'teachers' ? teachers.length
+            : tab.id === 'courses' ? courses.length
+            : periods.length;
           return (
             <button
               key={tab.id}
@@ -187,40 +201,10 @@ export default function Administrativo() {
             >
               <Icon size={15} className="inline mr-1.5 align-middle" aria-hidden="true" />
               {tab.label}
+              <span className={`ml-1.5 text-xs rounded-full px-1.5 py-0.5 ${isActive ? 'bg-primary text-white' : 'bg-bg text-text-secondary'}`}>{count}</span>
             </button>
           );
         })}
-      </div>
-
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen administrativo">
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><Users size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{students.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Estudiantes</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><Users size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{teachers.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Docentes</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><BookOpen size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{courses.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Cursos</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-secondary text-white"><Calendar size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{periods.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Períodos</div>
-          </div>
-        </div>
       </div>
 
       <div id="panel-students" role="tabpanel" aria-labelledby="tab-students">

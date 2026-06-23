@@ -1,12 +1,23 @@
 import { useAuth } from '../../contexts/AuthContext';
 import mockData, { getStudentGrades } from '../../data/mockData';
-import { ClipboardList, TrendingUp, Award } from 'lucide-react';
 import type { Period, Course, Grade } from '../../types';
 
 export default function Calificaciones() {
   const { user } = useAuth();
   if (!user) return null;
   const allPeriods = mockData.periods;
+
+  const completedCourses = mockData.enrollments.filter(e => e.studentId === user.id && e.status === 'completada');
+  const avgGrade = completedCourses.length > 0
+    ? (completedCourses.reduce((sum, e) => sum + (e.grade || 0), 0) / completedCourses.length).toFixed(1)
+    : 'N/A';
+
+  const totalCareerCredits = mockData.careers.find(ca => ca.name === ('career' in user ? user.career : ''))?.duration || 0;
+  const earnedCredits = completedCourses.reduce((sum, e) => {
+    const course = mockData.courses.find(c => c.id === e.courseId);
+    return sum + (course?.credits || 0);
+  }, 0);
+  const progressPct = totalCareerCredits > 0 ? Math.min(100, (earnedCredits / totalCareerCredits) * 100) : 0;
 
   const renderGradesForPeriod = (period: Period) => {
     const periodEnrollments = mockData.enrollments.filter(
@@ -46,7 +57,7 @@ export default function Calificaciones() {
 
     return (
       <div key={period.id} className="mb-8 last:mb-0">
-        <h3 className="text-base font-semibold mb-3 text-primary flex items-center gap-2">
+        <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
           {period.name}
           {period.active && <span className="tag-success text-[0.6rem]">Activo</span>}
         </h3>
@@ -69,13 +80,13 @@ export default function Calificaciones() {
                   {gradeRows.map((row, i) => (
                     <tr key={i}>
                       <td className="font-medium">{row.course?.name}</td>
-                      <td className="text-text-secondary">{row.course?.code}</td>
+                      <td className="font-mono text-xs text-text-secondary">{row.course?.code}</td>
                       {row.gradeDetail.map((g, j) => (
-                        <td key={j}>
+                        <td key={j} className="font-mono text-xs">
                           {g !== '-' ? g : <span className="text-text-secondary">-</span>}
                         </td>
                       ))}
-                      <td className="font-semibold">
+                      <td className="font-semibold font-mono text-xs">
                         {typeof row.finalGrade === 'number' ? (
                           <span className={row.finalGrade >= 6 ? 'text-success' : 'text-danger'}>
                             {row.finalGrade.toFixed(1)}
@@ -96,9 +107,9 @@ export default function Calificaciones() {
                 </tbody>
               </table>
             </div>
-            <div className="mt-3 text-right text-sm">
-              <strong>Promedio Ponderado: </strong>
-              <span className={`font-bold ${average !== '--' && parseFloat(average) >= 6 ? 'text-success' : 'text-primary'}`}>
+            <div className="mt-3 text-right text-xs">
+              <strong className="text-text-secondary">Promedio Ponderado: </strong>
+              <span className={`font-bold font-mono ${average !== '--' && parseFloat(average) >= 6 ? 'text-success' : 'text-primary'}`}>
                 {average}
               </span>
             </div>
@@ -112,39 +123,29 @@ export default function Calificaciones() {
     );
   };
 
-  const completedCourses = mockData.enrollments.filter(e => e.studentId === user.id && e.status === 'completada');
-  const avgGrade = completedCourses.length > 0
-    ? (completedCourses.reduce((sum, e) => sum + (e.grade || 0), 0) / completedCourses.length).toFixed(1)
-    : 'N/A';
-
   return (
     <div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen de calificaciones">
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><ClipboardList size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{completedCourses.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Cursos Completados</div>
+      <div className="card-body mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-primary">Calificaciones</h2>
+          <div className="text-xs text-text-secondary text-right">
+            <span className="font-medium text-primary">{completedCourses.length}</span> cursos completados &middot;
+            Promedio: <span className="font-bold font-mono text-primary">{avgGrade}</span> &middot;
+            {'semester' in user ? `${user.semester}° semestre` : ''}
           </div>
         </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><TrendingUp size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{avgGrade}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Promedio General</div>
+        <div className="mt-4">
+          <div className="flex justify-between text-xs text-text-secondary mb-1">
+            <span>Progreso de carrera</span>
+            <span className="font-mono">{earnedCredits}/{totalCareerCredits} créditos</span>
           </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><Award size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{'semester' in user ? `${user.semester}°` : '-'}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Semestre</div>
+          <div className="h-1.5 bg-bg rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${progressPct}%` }} role="progressbar" aria-valuenow={earnedCredits} aria-valuemin={0} aria-valuemax={totalCareerCredits} />
           </div>
         </div>
       </div>
 
       <div className="card-body">
-        <h2 className="text-lg font-semibold mb-4 text-primary">Calificaciones por Período</h2>
         {allPeriods.filter(p => {
           return mockData.enrollments.some(e => e.studentId === user.id && e.periodId === p.id);
         }).map(p => renderGradesForPeriod(p))}

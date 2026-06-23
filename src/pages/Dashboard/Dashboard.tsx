@@ -1,7 +1,23 @@
 import { useAuth } from '../../contexts/AuthContext';
-import mockData, { getStudentEnrollments, getStudentPayments, getTeacherCourses, getCourseStudents } from '../../data/mockData';
-import { BookOpen, DollarSign, TrendingUp, Award, Users, Calendar } from 'lucide-react';
-import type { User } from '../../types';
+import mockData, {
+  getStudentEnrollments, getStudentPayments, getTeacherCourses,
+  getCourseStudents, getStudentTodayCourses, getTeacherTodayCourses,
+  getCourseTeacherName, getScheduleStartTime
+} from '../../data/mockData';
+import { Link } from 'react-router-dom';
+import { BookOpen, DollarSign, Calendar, Users, TrendingUp } from 'lucide-react';
+
+function QuickLink({ to, icon: Icon, label }: { to: string; icon: React.ComponentType<{ size?: number }>; label: string }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-light text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors"
+    >
+      <Icon size={14} aria-hidden="true" />
+      {label}
+    </Link>
+  );
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -9,59 +25,66 @@ export default function Dashboard() {
 
   const renderEstudiante = () => {
     const enrollments = getStudentEnrollments(user!.id, currentPeriod!.id);
-    const totalCredits = enrollments.reduce((sum, e) => {
-      const course = mockData.courses.find(c => c.id === e.courseId);
-      return sum + (course ? course.credits : 0);
-    }, 0);
+    const todayCourses = getStudentTodayCourses(user!.id, currentPeriod!.id);
     const payments = getStudentPayments(user!.id);
     const pendingPayments = payments.filter(p => p.status === 'pendiente');
-    const totalPending = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
-
-    const completedCourses = mockData.enrollments.filter(e => e.studentId === user!.id && e.status === 'completada');
-    const avgGrade = completedCourses.length > 0
-      ? (completedCourses.reduce((sum, e) => sum + (e.grade || 0), 0) / completedCourses.length).toFixed(1)
-      : 'N/A';
 
     return (
       <>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen del estudiante">
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><BookOpen size={20} aria-hidden="true" /></div>
+        <div className="card-body mb-4">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Calendar size={14} aria-hidden="true" />
+            Agenda de Hoy
+          </h3>
+          {todayCourses.length > 0 ? (
             <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{enrollments.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Cursos Matriculados</div>
-              <div className="text-xs text-text-secondary">{totalCredits} créditos</div>
+              {todayCourses.map(course => {
+                const teacherName = getCourseTeacherName(course.id);
+                return (
+                  <div key={course.id} className="flex items-start gap-3 py-2.5 border-b border-border last:border-b-0">
+                    <div className="font-mono text-[15px] font-bold text-primary tabular-nums leading-none w-14 shrink-0 text-right">
+                      {getScheduleStartTime(course.schedule)}
+                    </div>
+                    <div className="w-px bg-border shrink-0 self-stretch" aria-hidden="true" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-primary truncate">{course.name}</span>
+                        <span className="font-mono text-[11px] text-text-secondary shrink-0">{course.code}</span>
+                      </div>
+                      <div className="text-xs text-text-secondary mt-0.5">
+                        {course.classroom} &middot; {teacherName}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><TrendingUp size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{avgGrade}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Promedio General</div>
-              <div className="text-xs text-text-secondary">{completedCourses.length} cursos completados</div>
+          ) : (
+            <div className="text-center py-6 text-text-secondary">
+              <Calendar size={28} className="mx-auto mb-2 opacity-50" aria-hidden="true" />
+              <p className="text-sm text-primary font-medium">No hay clases hoy</p>
+              <p className="text-xs mt-0.5">
+                {new Date().getDay() === 0 || new Date().getDay() === 6
+                  ? 'Es fin de semana, disfruta tu descanso.'
+                  : 'Revisa tus horarios o aprovecha para ponerte al día.'}
+              </p>
             </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-warning text-white"><DollarSign size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">${totalPending.toFixed(2)}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Pagos Pendientes</div>
-              <div className="text-xs text-text-secondary">{pendingPayments.length} facturas</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><Award size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{(user as any).semester}°</div>
-              <div className="text-xs text-text-secondary mt-0.5">Semestre Actual</div>
-              <div className="text-xs text-text-secondary">{(user as any).career}</div>
-            </div>
+          )}
+        </div>
+
+        <div className="card-body mb-4">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Acceso Rápido</h3>
+          <div className="flex flex-wrap gap-2">
+            <QuickLink to="/horarios" icon={Calendar} label="Horarios" />
+            <QuickLink to="/calificaciones" icon={BookOpen} label="Notas" />
+            <QuickLink to="/financiero" icon={DollarSign} label="Pagos" />
+            <QuickLink to="/matricula" icon={BookOpen} label="Matrícula" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="card-body">
-            <h3 className="text-sm font-semibold mb-3 text-primary">Mis Cursos</h3>
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Mis Cursos</h3>
             {enrollments.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {enrollments.map(e => {
@@ -85,7 +108,7 @@ export default function Dashboard() {
             )}
           </div>
           <div className="card-body">
-            <h3 className="text-sm font-semibold mb-3 text-primary">Próximos Vencimientos</h3>
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Próximos Vencimientos</h3>
             {pendingPayments.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {pendingPayments.slice(0, 4).map(p => (
@@ -113,42 +136,55 @@ export default function Dashboard() {
 
   const renderDocente = () => {
     const courses = getTeacherCourses(user!.id, currentPeriod!.id);
-    const totalStudents = courses.reduce((sum, c) => sum + c.enrolled, 0);
+    const todayCourses = getTeacherTodayCourses(user!.id, currentPeriod!.id);
 
     return (
       <>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen del docente">
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><BookOpen size={20} aria-hidden="true" /></div>
+        <div className="card-body mb-4">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Calendar size={14} aria-hidden="true" />
+            Clases de Hoy
+          </h3>
+          {todayCourses.length > 0 ? (
             <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{courses.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Cursos Asignados</div>
+              {todayCourses.map(course => (
+                <div key={course.id} className="flex items-start gap-3 py-2.5 border-b border-border last:border-b-0">
+                  <div className="font-mono text-[15px] font-bold text-primary tabular-nums leading-none w-14 shrink-0 text-right">
+                    {getScheduleStartTime(course.schedule)}
+                  </div>
+                  <div className="w-px bg-border shrink-0 self-stretch" aria-hidden="true" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-sm font-medium text-primary truncate">{course.name}</span>
+                      <span className="font-mono text-[11px] text-text-secondary shrink-0">{course.code}</span>
+                    </div>
+                    <div className="text-xs text-text-secondary mt-0.5">
+                      {course.classroom} &middot; {course.enrolled} estudiantes
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><Users size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{totalStudents}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Estudiantes</div>
+          ) : (
+            <div className="text-center py-6 text-text-secondary">
+              <Calendar size={28} className="mx-auto mb-2 opacity-50" aria-hidden="true" />
+              <p className="text-sm text-primary font-medium">Sin clases hoy</p>
+              <p className="text-xs mt-0.5">Usa este tiempo para preparar materiales o revisar evaluaciones.</p>
             </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><Calendar size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{currentPeriod?.name}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Período Activo</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 text-white" style={{ backgroundColor: '#6366f1' }}><Award size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{(user as any).specialization?.split(' ')[0]}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Especialidad</div>
-            </div>
+          )}
+        </div>
+
+        <div className="card-body mb-4">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Acceso Rápido</h3>
+          <div className="flex flex-wrap gap-2">
+            <QuickLink to="/docente/cursos" icon={BookOpen} label="Mis Cursos" />
+            <QuickLink to="/docente/asistencia" icon={Calendar} label="Asistencia" />
+            <QuickLink to="/docente/calificaciones" icon={BookOpen} label="Notas" />
           </div>
         </div>
+
         <div className="card-body">
-          <h3 className="text-sm font-semibold mb-3 text-primary">Mis Cursos ({currentPeriod?.name})</h3>
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Mis Cursos ({currentPeriod?.name})</h3>
           {courses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {courses.map(course => {
@@ -192,51 +228,37 @@ export default function Dashboard() {
   };
 
   const renderAdmin = () => {
-    const students = mockData.users.filter(u => u.role === 'estudiante');
-    const teachers = mockData.users.filter(u => u.role === 'docente');
-    const activeEnrollments = mockData.enrollments.filter(e => e.status === 'activa');
-    const totalPayments = mockData.payments.filter(p => p.status === 'pagado').reduce((s, p) => s + p.amount, 0);
-
     return (
       <>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen administrativo">
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><Users size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{students.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Estudiantes</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><Users size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{teachers.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Docentes</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><BookOpen size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{activeEnrollments.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Matrículas Activas</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-warning text-white"><DollarSign size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">${totalPayments.toFixed(2)}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Ingresos ({currentPeriod?.name})</div>
-            </div>
+        <div className="card-body mb-4">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Acceso Rápido</h3>
+          <div className="flex flex-wrap gap-2">
+            <QuickLink to="/admin" icon={Users} label="Panel Administrativo" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="card-body">
-            <h3 className="text-sm font-semibold mb-3 text-primary">Distribución por Carrera</h3>
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Actividad Reciente</h3>
+            <p className="text-xs text-text-secondary mb-4">Últimas matrículas registradas en el sistema.</p>
+            <div className="flex flex-col gap-2">
+              {mockData.enrollments.filter(e => e.status === 'activa').slice(0, 5).map((e, i) => {
+                const student = mockData.users.find(u => u.id === e.studentId);
+                const course = mockData.courses.find(c => c.id === e.courseId);
+                return (
+                  <div key={i} className="text-xs py-1.5 border-b border-border last:border-b-0">
+                    <strong className="text-primary">{student?.name}</strong> se matriculó en <strong className="text-primary">{course?.name}</strong>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="card-body">
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Distribución por Carrera</h3>
             <div className="flex flex-col gap-3">
               {mockData.careers.map(career => {
-                const count = mockData.users.filter((u: User) => u.role === 'estudiante' && u.career === career.name).length;
-                const total = mockData.users.filter((u: User) => u.role === 'estudiante').length;
+                const count = mockData.users.filter((u: any) => u.role === 'estudiante' && u.career === career.name).length;
+                const total = mockData.users.filter((u: any) => u.role === 'estudiante').length;
                 return (
                   <div key={career.id}>
                     <div className="flex justify-between text-xs mb-1">
@@ -259,21 +281,6 @@ export default function Dashboard() {
               })}
             </div>
           </div>
-          <div className="card-body">
-            <h3 className="text-sm font-semibold mb-3 text-primary">Actividad Reciente</h3>
-            <p className="text-xs text-text-secondary mb-4">Últimas matrículas registradas en el sistema.</p>
-            <div className="flex flex-col gap-2">
-              {mockData.enrollments.filter(e => e.status === 'activa').slice(0, 5).map((e, i) => {
-                const student = mockData.users.find(u => u.id === e.studentId);
-                const course = mockData.courses.find(c => c.id === e.courseId);
-                return (
-                  <div key={i} className="text-xs py-1.5 border-b border-border last:border-b-0">
-                    <strong className="text-primary">{student?.name}</strong> se matriculó en <strong className="text-primary">{course?.name}</strong>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </>
     );
@@ -290,41 +297,18 @@ export default function Dashboard() {
     const passRate = completedEnrollments.length > 0 ? ((passed / completedEnrollments.length) * 100).toFixed(1) : '0';
     const failPct = completedEnrollments.length > 0 ? ((failed / completedEnrollments.length) * 100) : 0;
 
+    const activeEnrollments = mockData.enrollments.filter(e => e.status === 'activa').length;
+
     return (
       <>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen directivo">
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><Users size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{students.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Estudiantes Activos</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><DollarSign size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">${totalPaid.toFixed(2)}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Ingresos Totales</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-warning text-white"><TrendingUp size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{passRate}%</div>
-              <div className="text-xs text-text-secondary mt-0.5">Tasa de Aprobación</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-danger text-white"><DollarSign size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">${totalPending.toFixed(2)}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Morosidad</div>
-            </div>
-          </div>
-        </div>
-        <div className="card-body">
-          <h3 className="text-sm font-semibold mb-3 text-primary">Resumen Ejecutivo - {currentPeriod?.name}</h3>
-          <p className="text-xs text-text-secondary mb-4">Use el Dashboard Ejecutivo para ver gráficos y estadísticas detalladas.</p>
+        <div className="card-body mb-4">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <TrendingUp size={14} aria-hidden="true" />
+            Resumen del Período
+          </h3>
+          <p className="text-xs text-text-secondary mb-4">
+            {currentPeriod?.name} &middot; {students.length} estudiantes activos &middot; {activeEnrollments} matrículas
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="text-xs font-semibold mb-2 text-primary">Rendimiento Académico</div>
@@ -376,6 +360,13 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="card-body">
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Acceso Rápido</h3>
+          <div className="flex flex-wrap gap-2">
+            <QuickLink to="/ejecutivo" icon={TrendingUp} label="Dashboard Ejecutivo" />
           </div>
         </div>
       </>

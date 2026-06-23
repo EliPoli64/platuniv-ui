@@ -294,4 +294,52 @@ export const getCourseById = (id: number) => mockData.courses.find(c => c.id ===
 export const getCareerById = (id: number) => mockData.careers.find(c => c.id === id);
 export const getStudentById = (id: number) => mockData.users.find(u => u.id === id && u.role === 'estudiante');
 
+const DAY_ABBREVIATIONS: Record<number, string> = {
+  1: 'Lun', 2: 'Mar', 3: 'Mie', 4: 'Jue', 5: 'Vie'
+};
+
+export const getTodayDayAbbreviation = (): string => {
+  return DAY_ABBREVIATIONS[new Date().getDay()] || '';
+};
+
+export const parseScheduleDays = (schedule: string): string[] => {
+  const parts = schedule.split(' ');
+  if (parts.length < 2) return [];
+  return (parts[0] || '').split('-');
+};
+
+export const isCourseToday = (schedule: string): boolean => {
+  const today = getTodayDayAbbreviation();
+  if (!today) return false;
+  return parseScheduleDays(schedule).includes(today);
+};
+
+export const getScheduleStartTime = (schedule: string): string => {
+  const parts = schedule.split(' ');
+  if (parts.length < 2) return '';
+  const timePart = parts[1];
+  if (!timePart) return '';
+  return timePart.split('-')[0] || '';
+};
+
+export const getStudentTodayCourses = (studentId: number, periodId: number) => {
+  const enrollments = getStudentEnrollments(studentId, periodId);
+  return mockData.courses.filter(c =>
+    enrollments.some(e => e.courseId === c.id) && isCourseToday(c.schedule)
+  );
+};
+
+export const getTeacherTodayCourses = (teacherId: number, periodId: number) => {
+  return mockData.courses.filter(c =>
+    c.teacherId === teacherId && c.periodId === periodId && isCourseToday(c.schedule)
+  );
+};
+
+export const getCourseTeacherName = (courseId: number): string => {
+  const course = mockData.courses.find(c => c.id === courseId);
+  if (!course) return '';
+  const teacher = mockData.users.find(u => u.id === course.teacherId);
+  return teacher?.name || '';
+};
+
 export default mockData;

@@ -44,6 +44,8 @@ export default function Matricula() {
     c.code.toLowerCase().includes(search.toLowerCase())
   );
 
+  const enrolledCourses = mockData.courses.filter(c => localEnrolledIds.includes(c.id));
+
   return (
     <div>
       {toast && (
@@ -67,33 +69,26 @@ export default function Matricula() {
             />
           </div>
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4" role="list" aria-label="Resumen de matrícula">
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><BookOpen size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{localEnrolledIds.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Cursos Matriculados</div>
+        {localEnrolledIds.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Matrícula Actual ({localEnrolledIds.length} cursos)</h3>
+            <div className="flex flex-wrap gap-2">
+              {enrolledCourses.map(c => (
+                <span key={c.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary-light text-primary text-xs font-medium">
+                  <BookOpen size={11} aria-hidden="true" />
+                  {c.code}
+                </span>
+              ))}
             </div>
           </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><CheckCircle size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{careerCourses.length - localEnrolledIds.length}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Cursos Disponibles</div>
-            </div>
-          </div>
-          <div className="card-stat" role="listitem">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><Clock size={20} aria-hidden="true" /></div>
-            <div>
-              <div className="text-2xl font-bold leading-tight text-primary">{'semester' in user ? `${user.semester}°` : '-'}</div>
-              <div className="text-xs text-text-secondary mt-0.5">Semestre</div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="card-body">
-        <h3 className="text-sm font-semibold mb-4 text-primary">Cursos Disponibles para Matrícula</h3>
+        <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-4">
+          Cursos Disponibles
+          <span className="ml-2 font-mono text-[11px] text-text-secondary">({filteredCourses.length})</span>
+        </h3>
         {filteredCourses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredCourses.map(course => {

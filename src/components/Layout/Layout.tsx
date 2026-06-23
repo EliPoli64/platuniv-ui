@@ -65,13 +65,13 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, [sidebarOpen, closeSidebar]);
 
   return (
-    <div className="flex min-h-screen bg-bg">
+    <div className="min-h-screen bg-bg">
       <button
         className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm ${sidebarOpen ? 'block' : 'hidden'} md:hidden`}
         onClick={closeSidebar}
         aria-label="Cerrar menú"
       />
-      <aside className={`fixed top-0 left-0 z-50 h-full w-[260px] bg-primary flex flex-col transition-transform duration-300 md:static md:translate-x-0 md:h-auto md:min-h-screen ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 z-50 h-screen w-[260px] bg-primary flex flex-col overflow-y-auto transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-6 pt-8 pb-6">
           <div className="font-display text-[1.6rem] leading-none text-white font-semibold tracking-tight">
             LA MEJOR
@@ -116,7 +116,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex flex-col min-w-0 min-h-screen md:ml-[260px]">
         <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-border sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button

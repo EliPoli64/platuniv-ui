@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getStudentPayments } from '../../data/mockData';
-import { DollarSign, CheckCircle, AlertCircle, Download, Receipt } from 'lucide-react';
+import { DollarSign, CheckCircle, AlertCircle, Download } from 'lucide-react';
 import type { Toast, Payment } from '../../types';
 
 export default function Financiero() {
@@ -39,28 +39,26 @@ export default function Financiero() {
         </div>
       )}
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-6" role="list" aria-label="Resumen financiero">
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-warning text-white"><DollarSign size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">${totalPending.toFixed(2)}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Pendiente de Pago</div>
-            <div className="text-xs text-text-secondary mt-1">{pendingPayments.length} facturas</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><CheckCircle size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">${totalPaid.toFixed(2)}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Total Pagado</div>
-            <div className="text-xs text-text-secondary mt-1">{paidPayments.length} recibos</div>
-          </div>
-        </div>
-        <div className="card-stat" role="listitem">
-          <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><Receipt size={20} aria-hidden="true" /></div>
-          <div>
-            <div className="text-2xl font-bold leading-tight text-primary">{payments.length}</div>
-            <div className="text-xs text-text-secondary mt-0.5">Transacciones</div>
+      <div className="card-body mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-primary">Financiero</h2>
+          <div className="flex items-center gap-3 text-xs">
+            <span>
+              <span className="text-text-secondary">Pendiente: </span>
+              <span className="font-bold font-mono text-warning">${totalPending.toFixed(2)}</span>
+            </span>
+            <span className="text-border">&middot;</span>
+            <span>
+              <span className="text-text-secondary">Pagado: </span>
+              <span className="font-bold font-mono text-success">${totalPaid.toFixed(2)}</span>
+            </span>
+            <span className="text-border">&middot;</span>
+            <span className="font-mono text-xs text-text-secondary">{payments.length} transacciones</span>
+            {totalPending > 0 ? (
+              <span className="tag-warning">{pendingPayments.length} pendiente(s)</span>
+            ) : (
+              <span className="tag-success">Al día</span>
+            )}
           </div>
         </div>
       </div>
@@ -68,8 +66,7 @@ export default function Financiero() {
       {pendingPayments.length > 0 && (
         <div className="card-body mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-primary">Pagos Pendientes</h3>
-            <span className="tag-warning">{pendingPayments.length} pendientes</span>
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Pagos Pendientes</h3>
           </div>
           <div className="overflow-x-auto rounded-lg border border-border">
             <table aria-label="Pagos pendientes">
@@ -86,7 +83,7 @@ export default function Financiero() {
                 {pendingPayments.map(p => (
                   <tr key={p.id}>
                     <td className="font-medium">{p.concept}</td>
-                    <td className="font-semibold text-warning">${p.amount.toFixed(2)}</td>
+                    <td className="font-semibold text-warning font-mono">${p.amount.toFixed(2)}</td>
                     <td className="text-text-secondary">Próximamente</td>
                     <td><span className="tag-warning">Pendiente</span></td>
                     <td>
@@ -104,7 +101,7 @@ export default function Financiero() {
 
       <div className="card-body">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-primary">Historial de Pagos</h3>
+          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Historial de Pagos</h3>
         </div>
         {paidPayments.length > 0 ? (
           <>
@@ -125,7 +122,7 @@ export default function Financiero() {
                     <tr key={p.id}>
                       <td className="font-mono text-xs">{p.receipt}</td>
                       <td>{p.concept}</td>
-                      <td className="font-semibold">${p.amount.toFixed(2)}</td>
+                      <td className="font-semibold font-mono">${p.amount.toFixed(2)}</td>
                       <td className="text-text-secondary">{p.date}</td>
                       <td><span className="tag-success">Pagado</span></td>
                       <td>

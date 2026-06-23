@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import mockData, { getTeacherCourses, getCourseStudents } from '../../data/mockData';
 import { BookOpen, Users, CheckCircle, Clock, AlertCircle } from 'lucide-react';
@@ -8,11 +9,28 @@ const GRADE_FIELDS: Array<keyof GradeFormEntry> = ['parcial1', 'parcial2', 'proy
 
 export default function Docente() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const currentPeriod = mockData.periods.find(p => p.active);
   const courses = getTeacherCourses(user!.id, currentPeriod?.id ?? 0);
 
   const [selectedCourse, setSelectedCourse] = useState<number | null>(courses[0]?.id ?? null);
-  const [activeView, setActiveView] = useState('cursos');
+
+  const tabFromPath = () => {
+    const t = location.pathname.split('/').pop() || 'cursos';
+    return t === 'docente' ? 'cursos' : t;
+  };
+  const [activeView, setActiveView] = useState(tabFromPath());
+
+  useEffect(() => {
+    const resolved = tabFromPath();
+    if (resolved !== activeView) setActiveView(resolved);
+  }, [location.pathname]);
+
+  const switchTab = (tabId: string) => {
+    navigate(`/docente/${tabId}`, { replace: true });
+    setActiveView(tabId);
+  };
 
   const course = mockData.courses.find(c => c.id === selectedCourse);
   const students = selectedCourse ? getCourseStudents(selectedCourse) : [];
@@ -125,6 +143,21 @@ export default function Docente() {
         </div>
       )}
 
+      <div className="card-body mb-6">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="font-semibold text-primary">{courses.length} curso(s) asignados</span>
+          {courseStats && selectedCourse && (
+            <>
+              <span className="text-border">&middot;</span>
+              <span className="inline-flex items-center gap-1"><Users size={13} aria-hidden="true" /> {courseStats.total} estudiantes</span>
+              <span>Prom. <span className="font-mono font-semibold">{courseStats.avg}</span></span>
+              {courseStats.passed > 0 && <span className="text-success">{courseStats.passed} aprobados</span>}
+              {courseStats.failed > 0 && <span className="text-danger">{courseStats.failed} reprobados</span>}
+            </>
+          )}
+        </div>
+      </div>
+
       <div className="flex border-b border-border mb-6 gap-1" role="tablist" aria-label="Vistas del docente">
         {viewTabs.map(tab => {
           const Icon = tab.icon;
@@ -139,7 +172,7 @@ export default function Docente() {
               className={`px-4 py-2.5 text-sm font-medium bg-transparent border-b-2 -mb-px transition-colors cursor-pointer ${
                 isActive ? 'text-primary border-b-primary' : 'text-text-secondary border-transparent hover:text-primary'
               }`}
-              onClick={() => setActiveView(tab.id)}
+              onClick={() => switchTab(tab.id)}
             >
               <Icon size={15} className="inline mr-1.5 align-middle" aria-hidden="true" />
               {tab.label}
@@ -163,36 +196,6 @@ export default function Docente() {
       <div id="panel-cursos" role="tabpanel" aria-labelledby="tab-cursos">
         {activeView === 'cursos' && (
           <>
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6" role="list" aria-label="Estadísticas de cursos">
-              <div className="card-stat" role="listitem">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary text-white"><BookOpen size={20} aria-hidden="true" /></div>
-                <div>
-                  <div className="text-2xl font-bold leading-tight text-primary">{courses.length}</div>
-                  <div className="text-xs text-text-secondary mt-0.5">Cursos Asignados</div>
-                </div>
-              </div>
-              <div className="card-stat" role="listitem">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-success text-white"><Users size={20} aria-hidden="true" /></div>
-                <div>
-                  <div className="text-2xl font-bold leading-tight text-primary">{courseStats?.total || 0}</div>
-                  <div className="text-xs text-text-secondary mt-0.5">Estudiantes ({course?.name})</div>
-                </div>
-              </div>
-              <div className="card-stat" role="listitem">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-info text-white"><CheckCircle size={20} aria-hidden="true" /></div>
-                <div>
-                  <div className="text-2xl font-bold leading-tight text-primary">{courseStats?.avg}</div>
-                  <div className="text-xs text-text-secondary mt-0.5">Promedio del Curso</div>
-                </div>
-              </div>
-              <div className="card-stat" role="listitem">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-warning text-white"><Users size={20} aria-hidden="true" /></div>
-                <div>
-                  <div className="text-2xl font-bold leading-tight text-primary">{courseStats?.passed}/{courseStats?.total}</div>
-                  <div className="text-xs text-text-secondary mt-0.5">Aprobados/Total</div>
-                </div>
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="card-body">
